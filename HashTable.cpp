@@ -18,7 +18,7 @@ size_t HashTable::findSlot(cell_t key) {
     return i;
 }
 
-bool HashTable::lookup(cell_t key) {
+bool HashTable::contains(cell_t key) {
     return table[findSlot(key)] == key;
 }
 

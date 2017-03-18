@@ -22,7 +22,7 @@ public:
 
     uint32_t hash(cell_t key);
     size_t findSlot(cell_t key);
-    bool lookup(cell_t key);
+    bool contains(cell_t key);
     void set(cell_t key);
 };
 
