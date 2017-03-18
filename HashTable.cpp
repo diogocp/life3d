@@ -1,8 +1,8 @@
 #include "HashTable.h"
 #include "MurmurHash3.h"
 
-size_t HashTable::hash(cell_t key) {
-    size_t h;
+uint32_t HashTable::hash(cell_t key) {
+    uint32_t h;
     MurmurHash3_x86_32(&key, sizeof(cell_t), 42, &h);
     return h;
 }

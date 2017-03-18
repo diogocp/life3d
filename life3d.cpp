@@ -47,12 +47,8 @@ int main(int argc, char *argv[]) {
 }
 
 void initialize(HashTable &ht, cell_t *buffer, size_t ncells) {
-    for (int i = 0; i < ncells; i++) {
-        std::cerr << "Inserting " << i << ": " << buffer[i] << std::endl;
+    for (int i = 0; i < ncells; i++)
         ht.set(buffer[i]);
-        std::cerr << "Inserted" << std::endl;
-    }
-    std::cerr << "Finished init" << std::endl;
 }
 
 

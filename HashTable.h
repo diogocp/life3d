@@ -20,7 +20,7 @@ public:
         free(table);
     }
 
-    size_t hash(cell_t key);
+    uint32_t hash(cell_t key);
     size_t findSlot(cell_t key);
     bool lookup(cell_t key);
     void set(cell_t key);
