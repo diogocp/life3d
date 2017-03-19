@@ -6,22 +6,18 @@
 #include "Grid.h"
 #include "HashTable.h"
 
-#define buffer_size 1000
+#define buffer_size 300000
 
 int read_file(const char *filename, cell_t *buffer, size_t max_n);
 
 int read_grid_size(const char *filename);
 
-void initialize(HashTable &ht, cell_t *buffer, size_t ncells);
-
 int main(int argc, char *argv[]) {
-    if (argc != 2) {
-        fprintf(stderr, "Exactly one argument expected (filename)\n");
+    if (argc != 3) {
+        fprintf(stderr, "Exactly two arguments expected (filename and number of generations))\n");
         return EXIT_FAILURE;
     }
-
-    cell_t *buffer = (cell_t *) malloc(buffer_size * sizeof(cell_t));
-    int ncells = read_file(argv[1], buffer, buffer_size);
+    int n_generations = atoi(argv[2]);
 
     int grid_size = read_grid_size(argv[1]);
     if (grid_size < 1) {
@@ -29,28 +25,21 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
-    HashTable ht = HashTable((unsigned) ncells * 2);
-    initialize(ht, buffer, ncells);
+    cell_t *buffer = (cell_t *) malloc(buffer_size * sizeof(cell_t));
+    int ncells = read_file(argv[1], buffer, buffer_size);
+
+    Grid grid = Grid(grid_size);
+    grid.set(buffer, ncells);
     free(buffer);
 
-    for (int i = 0; i < ncells * 2; i++) {
-        if (ht.table[i] != 0) {
-            fprintf(stderr, "%d: (%d,%d,%d)\t%016llx\n", i,
-                    Cell::getX(ht.table[i]), Cell::getY(ht.table[i]),Cell::getZ(ht.table[i]),
-                    ht.table[i]);
-        }
-
+    for(int i = 0; i < n_generations; i++) {
+        grid.evolve();
     }
+    grid.print();
 
     std::cerr << "Finished" << std::endl;
     return EXIT_SUCCESS;
 }
-
-void initialize(HashTable &ht, cell_t *buffer, size_t ncells) {
-    for (int i = 0; i < ncells; i++)
-        ht.set(buffer[i]);
-}
-
 
 int read_grid_size(const char *filename) {
     FILE *file = fopen(filename, "r");
