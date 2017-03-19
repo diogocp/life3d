@@ -1,4 +1,4 @@
-#include <iostream>
+#include <cstdio>
 #include "Grid.h"
 
 
@@ -76,7 +76,7 @@ void Grid::print() {
     for (int i = 0; i < table[state]->capacity; i++) {
         c = table[state]->table[i];
         if (c != 0) {
-            std::cout << Cell::getX(c) << " " << Cell::getY(c) << " " << Cell::getZ(c) << std::endl;
+            std::fprintf(stderr, "%u %u %u\n", CELL_X(c), CELL_Y(c), CELL_Z(c));
         }
     }
 }

@@ -4,7 +4,6 @@
 
 #include "Cell.h"
 #include "Grid.h"
-#include "HashTable.h"
 
 #define buffer_size 300000
 
@@ -82,7 +81,7 @@ int read_file(const char *filename, cell_t *buffer, size_t max_n) {
     unsigned n, x, y, z;
     for (n = 0; n < max_n; n++) {
         if (fscanf(file, "%u %u %u", &x, &y, &z) != EOF) {
-            buffer[n] = Cell::create(x, y, z);
+            buffer[n] = CELL(x, y, z);
         } else {
             break;
         }

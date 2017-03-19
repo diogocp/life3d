@@ -5,15 +5,12 @@
 
 typedef std::int64_t cell_t;
 
+#define CELL(x, y, z) ((cell_t) (x & 0xffff) << 16 | (cell_t) (y & 0xffff) << 32 | (cell_t) (z & 0xffff) << 48 | 1)
+#define CELL_X(c) ((unsigned int)(c >> 16 & 0xffff))
+#define CELL_Y(c) ((unsigned int)(c >> 32 & 0xffff))
+#define CELL_Z(c) ((unsigned int)(c >> 48 & 0xffff))
+
 namespace Cell {
-    cell_t create(unsigned x, unsigned y, unsigned z);
-
-    unsigned getX(cell_t c);
-
-    unsigned getY(cell_t c);
-
-    unsigned getZ(cell_t c);
-
     void getNeighbors(cell_t c, cell_t *neighbors, unsigned coord_max);
 };
 
