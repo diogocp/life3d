@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#include "Cell.h"
+#include "cell.h"
 
 class HashTable {
 public:

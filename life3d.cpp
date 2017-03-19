@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <iostream>
 
-#include "Cell.h"
+#include "cell.h"
 #include "Grid.h"
 
 #define buffer_size 300000

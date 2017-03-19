@@ -10,8 +10,4 @@ typedef std::int64_t cell_t;
 #define CELL_Y(c) ((unsigned int)(c >> 32 & 0xffff))
 #define CELL_Z(c) ((unsigned int)(c >> 48 & 0xffff))
 
-namespace Cell {
-    void getNeighbors(cell_t c, cell_t *neighbors, unsigned coord_max);
-};
-
 #endif //LIFE3D_CELL_H
