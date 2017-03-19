@@ -1,10 +1,8 @@
+#include <nmmintrin.h>
 #include "HashTable.h"
-#include "MurmurHash3.h"
 
 uint32_t HashTable::hash(cell_t key) {
-    uint32_t h;
-    MurmurHash3_x86_32(&key, sizeof(cell_t), 42, &h);
-    return h;
+    return (uint32_t) _mm_crc32_u64(0, key);
 }
 
 size_t HashTable::findSlot(cell_t key) {
