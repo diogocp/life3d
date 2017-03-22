@@ -37,7 +37,7 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "%s: Failed to read initial configuration from file\n", argv[0]);
     }
 
-    fprintf(stderr, "Size: %u\nLines: %u\nGenerations: %lu", size, num_cells, generations);
+    fprintf(stderr, "Size: %u\nLines: %u\nGenerations: %lu\n", size, num_cells, generations);
 
     Grid grid = Grid(size);
     grid.set(buffer, num_cells);
