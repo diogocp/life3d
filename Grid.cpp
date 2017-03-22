@@ -1,4 +1,6 @@
 #include <cstdio>
+#include <cstdlib>
+
 #include "Grid.h"
 
 void Grid::getNeighbors(cell_t c, cell_t *neighbors) {
@@ -109,8 +111,17 @@ void Grid::evolve() {
     return;
 }
 
+int compareCells(const void *a, const void *b) {
+    if (*(cell_t *) a < *(cell_t *) b) return -1;
+    if (*(cell_t *) a == *(cell_t *) b) return 0;
+    if (*(cell_t *) a > *(cell_t *) b) return 1;
+}
+
 void Grid::print() {
     cell_t c;
+
+    std::qsort(table[state]->table, table[state]->capacity, sizeof(cell_t), compareCells);
+
     for (int i = 0; i < table[state]->capacity; i++) {
         c = table[state]->table[i];
         if (c != 0) {
