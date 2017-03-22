@@ -24,7 +24,7 @@ int main(int argc, char *argv[]) {
     }
 
     unsigned int size = read_size(file);
-    if (size == 0 | size > 10000) {
+    if (size == 0 || size > 10000) {
         fprintf(stderr, "%s: %u: Invalid size\n", argv[0], size);
         return EXIT_FAILURE;
     }
@@ -43,7 +43,7 @@ int main(int argc, char *argv[]) {
     grid.set(buffer, num_cells);
     free(buffer);
 
-    for (int i = 0; i < generations; i++) {
+    for (unsigned int i = 0; i < generations; i++) {
         grid.evolve();
     }
     grid.print();

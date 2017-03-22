@@ -70,7 +70,7 @@ bool Grid::nextState(cell_t c) {
 
 void Grid::set(cell_t *cells, size_t n_cells) {
     table[state] = new HashTable(n_cells * 2);
-    for (int i = 0; i < n_cells; i++) {
+    for (unsigned int i = 0; i < n_cells; i++) {
         table[state]->set(cells[i]);
     }
     this->n_cells[state] = n_cells;
@@ -83,10 +83,10 @@ void Grid::evolve() {
     HashTable *now = table[state];
     HashTable *next = table[state ^ 1];
 
-    int n_cells_next = 0;
+    unsigned int n_cells_next = 0;
     cell_t c;
     cell_t neighbors[6];
-    for (int i = 0; i < now->capacity; i++) {
+    for (unsigned int i = 0; i < now->capacity; i++) {
         c = now->table[i];
         if (c == 0) continue;
 
@@ -112,9 +112,11 @@ void Grid::evolve() {
 }
 
 int compareCells(const void *a, const void *b) {
-    if (*(cell_t *) a < *(cell_t *) b) return -1;
-    if (*(cell_t *) a == *(cell_t *) b) return 0;
-    if (*(cell_t *) a > *(cell_t *) b) return 1;
+    if (*(cell_t *) a < *(cell_t *) b)
+        return -1;
+    if (*(cell_t *) a > *(cell_t *) b)
+        return 1;
+    return 0;
 }
 
 void Grid::print() {
@@ -122,7 +124,7 @@ void Grid::print() {
 
     std::qsort(table[state]->table, table[state]->capacity, sizeof(cell_t), compareCells);
 
-    for (int i = 0; i < table[state]->capacity; i++) {
+    for (unsigned int i = 0; i < table[state]->capacity; i++) {
         c = table[state]->table[i];
         if (c != 0) {
             std::fprintf(stdout, "%u %u %u\n", CELL_X(c), CELL_Y(c), CELL_Z(c));

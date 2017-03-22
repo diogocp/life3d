@@ -7,7 +7,7 @@ unsigned int estimate_lines(FILE *file, unsigned int size);
 
 unsigned long long int ipow(unsigned int base, unsigned int exp);
 
-long get_file_size(FILE *file);
+unsigned long int get_file_size(FILE *file);
 
 unsigned int read_size(FILE *file) {
     unsigned int size = 0;
@@ -40,7 +40,7 @@ int how_many_with(int digits) {
  */
 unsigned int estimate_lines(FILE *file, unsigned int size) {
     unsigned int lines;
-    long file_size = get_file_size(file);
+    unsigned long file_size = get_file_size(file);
 
     if (size <= 10 || file_size <= 6000) {
         // This case is easy since all coordinates have
@@ -93,15 +93,16 @@ unsigned long long int ipow(unsigned int base, unsigned int exp) {
 #include <sys/stat.h>
 
 // On UNIX use fstat to avoid seeking
-long get_file_size(FILE *file) {
+unsigned long int get_file_size(FILE *file) {
     struct stat buf;
     fstat(fileno(file), &buf);
-    return buf.st_size;
+    return buf.st_size < 0 ? 0 : (unsigned long int) buf.st_size;
+
 }
 
 #else
 
-long get_file_size(FILE *file) {
+unsigned long int get_file_size(FILE *file) {
     long current_pos, file_size;
 
     current_pos = ftell(file);
@@ -109,7 +110,7 @@ long get_file_size(FILE *file) {
     file_size = ftell(file);
     fseek(file, current_pos, SEEK_SET);
 
-    return file_size;
+    return file_size < 0 ? 0 : (unsigned long int) file_size;
 }
 
 #endif
