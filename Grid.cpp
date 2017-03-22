@@ -125,7 +125,7 @@ void Grid::print() {
     for (int i = 0; i < table[state]->capacity; i++) {
         c = table[state]->table[i];
         if (c != 0) {
-            std::fprintf(stderr, "%u %u %u\n", CELL_X(c), CELL_Y(c), CELL_Z(c));
+            std::fprintf(stdout, "%u %u %u\n", CELL_X(c), CELL_Y(c), CELL_Z(c));
         }
     }
 }
