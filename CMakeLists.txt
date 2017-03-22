@@ -1,7 +1,7 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 2.8)
 project(life3d)
 
-set(CMAKE_CXX_STANDARD 14)
+#set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_FLAGS -msse4.2)
 
 set(SOURCE_FILES life3d.cpp io.cpp Grid.cpp Grid.h HashTable.cpp HashTable.h)
