@@ -28,12 +28,6 @@ unsigned int read_file(FILE *file, unsigned int size, cell_t **cells) {
     return n;
 }
 
-int how_many_with(int digits) {
-    if (digits == 1)
-        return 1000;
-    return 10 * how_many_with(digits - 1);
-}
-
 /**
  * This function gives an upper bound on the number of lines in the file,
  * by assuming that each line is as small as possible.

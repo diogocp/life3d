@@ -22,6 +22,6 @@ add_test(NAME s150e10k.1000
 add_test(NAME s200e50k.1000
         COMMAND sh -c "${PROJECT_BINARY_DIR}/life3d s200e50k.in 1000 | cmp s200e50k.1000.out -"
         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/instances/)
-add_test(NAME s500e300k.2000.out
+add_test(NAME s500e300k.2000
         COMMAND sh -c "${PROJECT_BINARY_DIR}/life3d s500e300k.in 2000 | cmp s500e300k.2000.out -"
         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/instances/)
