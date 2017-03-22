@@ -1,12 +1,19 @@
+#include <stdlib.h>
 #include <nmmintrin.h>
+
 #include "HashTable.h"
 
-uint32_t HashTable::hash(cell_t key) {
-    return (uint32_t) _mm_crc32_u64(0, key);
+HashTable::HashTable(size_t capacity) {
+    this->capacity = capacity;
+    table = (cell_t *) calloc(capacity, sizeof(cell_t));
+}
+
+HashTable::~HashTable() {
+    free(table);
 }
 
 size_t HashTable::findSlot(cell_t key) {
-    size_t i = hash(key) % capacity;
+    size_t i = (unsigned int) _mm_crc32_u64(0, key) % capacity;
 
     while (table[i] != 0 && table[i] != key) {
         if (++i == capacity) {
