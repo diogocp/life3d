@@ -9,7 +9,7 @@
 
 unsigned int read_size(FILE *file);
 
-unsigned int read_file(FILE *file, unsigned int size, cell_t **cells);
+unsigned int read_file(FILE *file, unsigned int size, hashtable_t **cells_ht);
 
 void print_cells(hashtable_t *ht);
 

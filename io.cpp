@@ -16,16 +16,16 @@ unsigned int read_size(FILE *file) {
     return size;
 }
 
-unsigned int read_file(FILE *file, unsigned int size, cell_t **cells) {
-    unsigned int buffer_sz = estimate_lines(file, size);
-    cell_t *buf = (cell_t *) malloc(buffer_sz * sizeof(cell_t));
+unsigned int read_file(FILE *file, unsigned int size, hashtable_t **cells_ht) {
+    hashtable_t *ht = HT_create(estimate_lines(file, size) * 2);
 
     unsigned int x, y, z, n = 0;
     while (fscanf(file, "%u %u %u", &x, &y, &z) != EOF) {
-        buf[n++] = CELL(x, y, z);
+        HT_set(ht, CELL(x, y, z));
+        n++;
     }
 
-    *cells = buf;
+    *cells_ht = ht;
     return n;
 }
 

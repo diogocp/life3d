@@ -29,19 +29,17 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
-    cell_t *buffer;
-    unsigned int num_cells = read_file(file, size, &buffer);
+    hashtable_t *initial_config;
+    unsigned int num_cells = read_file(file, size, &initial_config);
     fclose(file);
 
-    if (buffer == NULL) {
+    if (initial_config == NULL) {
         fprintf(stderr, "%s: Failed to read initial configuration from file\n", argv[0]);
     }
 
     fprintf(stderr, "Size: %u\nLines: %u\nGenerations: %lu\n", size, num_cells, generations);
 
-    Grid grid = Grid(size);
-    grid.set(buffer, num_cells);
-    free(buffer);
+    Grid grid = Grid(size, initial_config, num_cells);
 
     for (unsigned int i = 0; i < generations; i++) {
         grid.evolve();

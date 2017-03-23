@@ -63,14 +63,6 @@ bool Grid::nextState(cell_t c) {
     return 1;
 }
 
-void Grid::set(cell_t *cells, size_t n_cells) {
-    table[state] = HT_create(n_cells * 2);
-    for (unsigned int i = 0; i < n_cells; i++) {
-        HT_set(table[state], cells[i]);
-    }
-    this->n_cells[state] = n_cells;
-}
-
 void Grid::evolve() {
     HT_free(table[state ^ 1]);
     table[state ^ 1] = HT_create(n_cells[state] * 2);
