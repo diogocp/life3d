@@ -16,8 +16,6 @@ public:
 
     void getNeighbors(cell_t c, cell_t *neighbors);
 
-    int isAlive(cell_t cell);
-
     bool nextState(cell_t c);
 
     void set(cell_t *cells, size_t n_cells);

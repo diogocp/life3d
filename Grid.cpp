@@ -41,17 +41,13 @@ void Grid::getNeighbors(cell_t c, cell_t *neighbors) {
     }
 }
 
-int Grid::isAlive(cell_t cell) {
-    return HT_contains(table[state], cell);
-}
-
 bool Grid::nextState(cell_t c) {
     cell_t neighbors[6];
     getNeighbors(c, neighbors);
 
     int live_count = 0;
     for (int i = 0; i < 6; i++) {
-        live_count += isAlive(neighbors[i]);
+        live_count += HT_contains(table[state], neighbors[i]);
         if (live_count > 4)
             break;
         if (i == 4 && live_count == 0)
@@ -61,7 +57,7 @@ bool Grid::nextState(cell_t c) {
     if (live_count < 2 || live_count > 4) {
         return 0;
     }
-    if (!isAlive(c) && live_count == 4) {
+    if (!HT_contains(table[state], c) && live_count == 4) {
         return 0;
     }
     return 1;
