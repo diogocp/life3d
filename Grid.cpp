@@ -42,8 +42,8 @@ void Grid::getNeighbors(cell_t c, cell_t *neighbors) {
     }
 }
 
-bool Grid::isAlive(cell_t cell) {
-    return table[state]->contains(cell);
+int Grid::isAlive(cell_t cell) {
+    return HT_contains(table[state], cell);
 }
 
 bool Grid::nextState(cell_t c) {
@@ -69,19 +69,19 @@ bool Grid::nextState(cell_t c) {
 }
 
 void Grid::set(cell_t *cells, size_t n_cells) {
-    table[state] = new HashTable(n_cells * 2);
+    table[state] = HT_create(n_cells * 2);
     for (unsigned int i = 0; i < n_cells; i++) {
-        table[state]->set(cells[i]);
+        HT_set(table[state], cells[i]);
     }
     this->n_cells[state] = n_cells;
 }
 
 void Grid::evolve() {
-    delete table[state ^ 1];
-    table[state ^ 1] = new HashTable(n_cells[state] * 2);
+    HT_free(table[state ^ 1]);
+    table[state ^ 1] = HT_create(n_cells[state] * 2);
 
-    HashTable *now = table[state];
-    HashTable *next = table[state ^ 1];
+    hashtable_t *now = table[state];
+    hashtable_t *next = table[state ^ 1];
 
     unsigned int n_cells_next = 0;
     cell_t c;
@@ -91,7 +91,7 @@ void Grid::evolve() {
         if (c == 0) continue;
 
         if (nextState(c)) {
-            next->set(c);
+            HT_set(next, c);
             n_cells_next++;
         }
 
@@ -99,8 +99,8 @@ void Grid::evolve() {
 
         for (size_t j = 0; j < 6; j++) {
             c = neighbors[j];
-            if (!(now->contains(c)) && !(next->contains(c)) && nextState(c)) {
-                next->set(c);
+            if (!(HT_contains(now, c)) && !(HT_contains(next, c)) && nextState(c)) {
+                HT_set(next, c);
                 n_cells_next++;
             }
         }
