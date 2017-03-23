@@ -46,7 +46,7 @@ int main(int argc, char *argv[]) {
     for (unsigned int i = 0; i < generations; i++) {
         grid.evolve();
     }
-    grid.print();
+    print_cells(grid.table[grid.state]);
 
     return EXIT_SUCCESS;
 }

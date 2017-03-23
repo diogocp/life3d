@@ -1,13 +1,14 @@
-#include <stdio.h>
+#include "io.h"
+
 #include <stdlib.h>
 
-#include "io.h"
 
 unsigned int estimate_lines(FILE *file, unsigned int size);
 
 unsigned long long int ipow(unsigned int base, unsigned int exp);
 
 unsigned long int get_file_size(FILE *file);
+
 
 unsigned int read_size(FILE *file) {
     unsigned int size = 0;
@@ -26,6 +27,19 @@ unsigned int read_file(FILE *file, unsigned int size, cell_t **cells) {
 
     *cells = buf;
     return n;
+}
+
+void print_cells(hashtable_t *ht) {
+    int compareCells(const void *a, const void *b);
+    qsort(ht->table, ht->capacity, sizeof(cell_t), compareCells);
+
+    cell_t c;
+    for (unsigned int i = 0; i < ht->capacity; i++) {
+        c = ht->table[i];
+        if (c != 0) {
+            fprintf(stdout, "%u %u %u\n", CELL_X(c), CELL_Y(c), CELL_Z(c));
+        }
+    }
 }
 
 /**
@@ -108,3 +122,11 @@ unsigned long int get_file_size(FILE *file) {
 }
 
 #endif
+
+int compareCells(const void *a, const void *b) {
+    if (*(cell_t *) a < *(cell_t *) b)
+        return -1;
+    if (*(cell_t *) a > *(cell_t *) b)
+        return 1;
+    return 0;
+}

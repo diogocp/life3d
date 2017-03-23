@@ -23,8 +23,6 @@ public:
     void set(cell_t *cells, size_t n_cells);
 
     void evolve();
-
-    void print();
 };
 
 #endif //LIFE3D_GRID_H

@@ -1,5 +1,4 @@
 #include <cstdio>
-#include <cstdlib>
 
 #include "Grid.h"
 
@@ -109,25 +108,4 @@ void Grid::evolve() {
     state ^= 1;
     n_cells[state] = n_cells_next;
     return;
-}
-
-int compareCells(const void *a, const void *b) {
-    if (*(cell_t *) a < *(cell_t *) b)
-        return -1;
-    if (*(cell_t *) a > *(cell_t *) b)
-        return 1;
-    return 0;
-}
-
-void Grid::print() {
-    cell_t c;
-
-    std::qsort(table[state]->table, table[state]->capacity, sizeof(cell_t), compareCells);
-
-    for (unsigned int i = 0; i < table[state]->capacity; i++) {
-        c = table[state]->table[i];
-        if (c != 0) {
-            std::fprintf(stdout, "%u %u %u\n", CELL_X(c), CELL_Y(c), CELL_Z(c));
-        }
-    }
 }
