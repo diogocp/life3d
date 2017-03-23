@@ -4,8 +4,21 @@
 typedef unsigned long long int cell_t;
 
 #define CELL(x, y, z) ((cell_t)((x) & 0xffff) << 48 | (cell_t)((y) & 0xffff) << 32 | (cell_t)((z) & 0xffff) << 16 | 0xce11)
+
+#ifdef __BMI2__
+
+#include <immintrin.h>
+
+#define CELL_X(c) ((unsigned int) _pext_u64((c), 0xffff << 48))
+#define CELL_Y(c) ((unsigned int) _pext_u64((c), 0xffff << 32))
+#define CELL_Z(c) ((unsigned int) _pext_u64((c), 0xffff << 16))
+
+#else
+
 #define CELL_X(c) ((unsigned int)((c) >> 48 & 0xffff))
 #define CELL_Y(c) ((unsigned int)((c) >> 32 & 0xffff))
 #define CELL_Z(c) ((unsigned int)((c) >> 16 & 0xffff))
+
+#endif //__BMI2__
 
 #endif //LIFE3D_CELL_H
