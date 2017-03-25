@@ -38,6 +38,7 @@ int main(int argc, char *argv[]) {
 
     if (initial_config == NULL) {
         fprintf(stderr, "%s: Failed to read initial configuration from file\n", argv[0]);
+        return EXIT_FAILURE;
     }
 
     fprintf(stderr, "Size: %u\nLines: %u\nGenerations: %lu\n", size, num_cells, generations);
