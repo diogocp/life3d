@@ -1,6 +1,9 @@
 #include "io.h"
+#include "hashtable.h"
+#include "cell.h"
 
 #include <stdlib.h>
+#include <stdio.h>
 
 
 unsigned int estimate_lines(FILE *file, unsigned int size);
@@ -96,7 +99,7 @@ unsigned long long int ipow(unsigned int base, unsigned int exp) {
 }
 
 
-#if defined(__unix__) || defined(__unix) || (defined(__APPLE__) && defined(__MACH__))
+#ifdef _POSIX_SOURCE
 
 #include <sys/stat.h>
 

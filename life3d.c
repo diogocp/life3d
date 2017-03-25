@@ -3,6 +3,7 @@
 #include <limits.h>
 
 #include "io.h"
+#include "cell.h"
 
 
 static unsigned int next_generation(const hashtable_t *now, hashtable_t *next, unsigned int size);

@@ -2,7 +2,6 @@
 #define LIFE3D_IO_H
 
 #include "hashtable.h"
-#include "cell.h"
 
 #include <stdio.h>
 

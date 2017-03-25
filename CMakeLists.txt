@@ -1,9 +1,10 @@
 cmake_minimum_required(VERSION 2.8)
 project(life3d)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pedantic -Wall -msse4.2")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -pedantic -Wall -msse4.2")
+add_definitions(-D_POSIX_SOURCE)
 
-set(SOURCE_FILES life3d.cpp cell.cpp hashtable.cpp io.cpp)
+set(SOURCE_FILES life3d.c cell.c hashtable.c io.c)
 add_executable(life3d ${SOURCE_FILES})
 
 enable_testing()
