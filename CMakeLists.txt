@@ -4,8 +4,8 @@ project(life3d)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -pedantic -Wall -msse4.2")
 add_definitions(-D_POSIX_SOURCE)
 
-set(SOURCE_FILES life3d.c cell.c hashtable.c io.c)
-add_executable(life3d ${SOURCE_FILES})
+set(SHARED_SOURCE_FILES main.c cell.c hashtable.c io.c)
+add_executable(life3d life3d.c ${SHARED_SOURCE_FILES})
 
 enable_testing()
 add_test(NAME s5e50.10

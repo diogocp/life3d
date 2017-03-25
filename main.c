@@ -1,0 +1,49 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
+
+#include "io.h"
+#include "life3d.h"
+
+
+int main(int argc, char *argv[]) {
+    if (argc != 3) {
+        fprintf(stderr, "Usage: %s FILENAME GENERATIONS\n", argv[0]);
+        return EXIT_FAILURE;
+    }
+
+    FILE *file = fopen(argv[1], "r");
+    if (file == NULL) {
+        fprintf(stderr, "%s: %s: No such file or directory\n", argv[0], argv[1]);
+        return EXIT_FAILURE;
+    }
+
+    unsigned long generations = strtoul(argv[2], NULL, 10);
+    if (generations == 0 || generations > LONG_MAX) {
+        fprintf(stderr, "%s: %s: Invalid number of generations\n", argv[0], argv[2]);
+        return EXIT_FAILURE;
+    }
+
+    unsigned int size = read_size(file);
+    if (size == 0 || size > 10000) {
+        fprintf(stderr, "%s: %u: Invalid size\n", argv[0], size);
+        return EXIT_FAILURE;
+    }
+
+    hashtable_t *state;
+    unsigned int num_cells = read_file(file, size, &state);
+    fclose(file);
+
+    if (state == NULL) {
+        fprintf(stderr, "%s: Failed to read initial configuration from file\n", argv[0]);
+        return EXIT_FAILURE;
+    }
+
+    fprintf(stderr, "Size: %u\nLines: %u\nGenerations: %lu\n", size, num_cells, generations);
+
+    life3d_run(size, state, num_cells, generations);
+
+    print_cells(state);
+
+    return EXIT_SUCCESS;
+}

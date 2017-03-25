@@ -1,60 +1,18 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <limits.h>
-
-#include "io.h"
+#include "hashtable.h"
 #include "cell.h"
 
 
 static unsigned int next_generation(const hashtable_t *now, hashtable_t *next, unsigned int size);
 
-int main(int argc, char *argv[]) {
-    if (argc != 3) {
-        fprintf(stderr, "Usage: %s FILENAME GENERATIONS\n", argv[0]);
-        return EXIT_FAILURE;
-    }
-
-    FILE *file = fopen(argv[1], "r");
-    if (file == NULL) {
-        fprintf(stderr, "%s: %s: No such file or directory\n", argv[0], argv[1]);
-        return EXIT_FAILURE;
-    }
-
-    unsigned long generations = strtoul(argv[2], NULL, 10);
-    if (generations == 0 || generations > LONG_MAX) {
-        fprintf(stderr, "%s: %s: Invalid number of generations\n", argv[0], argv[2]);
-        return EXIT_FAILURE;
-    }
-
-    unsigned int size = read_size(file);
-    if (size == 0 || size > 10000) {
-        fprintf(stderr, "%s: %u: Invalid size\n", argv[0], size);
-        return EXIT_FAILURE;
-    }
-
-    hashtable_t *initial_config;
-    unsigned int num_cells = read_file(file, size, &initial_config);
-    fclose(file);
-
-    if (initial_config == NULL) {
-        fprintf(stderr, "%s: Failed to read initial configuration from file\n", argv[0]);
-        return EXIT_FAILURE;
-    }
-
-    fprintf(stderr, "Size: %u\nLines: %u\nGenerations: %lu\n", size, num_cells, generations);
-
-    hashtable_t *now = initial_config;
-    hashtable_t *next;
+void life3d_run(unsigned int size, hashtable_t *state, unsigned int num_cells, unsigned long generations) {
+    hashtable_t *next_state;
 
     for (unsigned int i = 0; i < generations; i++) {
-        next = HT_create(num_cells * 2);
-        num_cells = next_generation(now, next, size);
-        HT_free(now);
-        now = next;
+        next_state = HT_create(num_cells * 2);
+        num_cells = next_generation(state, next_state, size);
+        HT_free(state);
+        state = next_state;
     }
-    print_cells(now);
-
-    return EXIT_SUCCESS;
 }
 
 static unsigned int next_generation(const hashtable_t *now, hashtable_t *next, unsigned int size) {
