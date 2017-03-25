@@ -3,7 +3,9 @@
 #include <limits.h>
 
 #include "io.h"
-#include "Grid.h"
+
+
+static unsigned int next_generation(const hashtable_t *now, hashtable_t *next, unsigned int size);
 
 int main(int argc, char *argv[]) {
     if (argc != 3) {
@@ -39,12 +41,48 @@ int main(int argc, char *argv[]) {
 
     fprintf(stderr, "Size: %u\nLines: %u\nGenerations: %lu\n", size, num_cells, generations);
 
-    Grid grid = Grid(size, initial_config, num_cells);
+    hashtable_t *now = initial_config;
+    hashtable_t *next;
 
     for (unsigned int i = 0; i < generations; i++) {
-        grid.evolve();
+        next = HT_create(num_cells * 2);
+        num_cells = next_generation(now, next, size);
+        HT_free(now);
+        now = next;
     }
-    print_cells(grid.table[grid.state]);
+    print_cells(now);
 
     return EXIT_SUCCESS;
+}
+
+static unsigned int next_generation(const hashtable_t *now, hashtable_t *next, unsigned int size) {
+    unsigned int ncells_next = 0;
+
+    cell_t c;
+    cell_t neighbors[6];
+
+    for (unsigned int i = 0; i < now->capacity; i++) {
+        c = now->table[i];
+        if (c == 0) continue;
+
+        cell_get_neighbors(c, neighbors, size);
+
+        if (cell_next_state(c, neighbors, now)) {
+            HT_set(next, c);
+            ncells_next++;
+        }
+
+        cell_t buf[6];
+        for (size_t j = 0; j < 6; j++) {
+            c = neighbors[j];
+            cell_get_neighbors(c, buf, size);
+
+            if (!(HT_contains(now, c)) && !(HT_contains(next, c)) && cell_next_state(c, buf, now)) {
+                HT_set(next, c);
+                ncells_next++;
+            }
+        }
+    }
+
+    return ncells_next;
 }

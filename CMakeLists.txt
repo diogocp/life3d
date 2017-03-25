@@ -3,7 +3,7 @@ project(life3d)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pedantic -Wall -msse4.2")
 
-set(SOURCE_FILES life3d.cpp io.cpp hashtable.cpp Grid.cpp Grid.h)
+set(SOURCE_FILES life3d.cpp cell.cpp hashtable.cpp io.cpp)
 add_executable(life3d ${SOURCE_FILES})
 
 enable_testing()
