@@ -36,3 +36,10 @@ int HT_contains(const hashtable_t *ht, unsigned long long int key) {
 void HT_set(hashtable_t *ht, unsigned long long int key) {
     ht->table[HT_find_slot(ht, key)] = key;
 }
+
+void HT_set_atomic(hashtable_t *ht, unsigned long long int key) {
+    size_t slot;
+    do {
+        slot = HT_find_slot(ht, key);
+    } while (!__sync_bool_compare_and_swap(&(ht->table[slot]), 0, key) && ht->table[slot] != key);
+}

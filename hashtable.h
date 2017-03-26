@@ -17,4 +17,6 @@ int HT_contains(const hashtable_t *ht, unsigned long long int key);
 
 void HT_set(hashtable_t *ht, unsigned long long int key);
 
+void HT_set_atomic(hashtable_t *ht, unsigned long long int key);
+
 #endif //LIFE3D_HASHTABLE_H

@@ -11,10 +11,14 @@ compiler:
   - clang
   - gcc
 
+env:
+  - OMP_NUM_THREADS=2
+
 script:
-  - cmake .
-  - make
-  - make test
+  - cmake -E make_directory build
+  - cmake -E chdir build cmake ..
+  - cmake --build build
+  - cmake -E chdir build ctest
 
 notifications:
   - email: false
