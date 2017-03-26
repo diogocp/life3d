@@ -3,10 +3,6 @@ language: cpp
 dist: trusty
 sudo: false
 
-os:
-  - linux
-  - osx
-
 compiler:
   - clang
   - gcc
