@@ -6,16 +6,20 @@
 
 void life3d_run(unsigned int size, hashtable_t *state, unsigned int num_cells, unsigned long generations) {
     hashtable_t *next_state;
+    cell_t c;
+    cell_t neighbors[6];
 
+    #pragma omp parallel private(c, neighbors) shared(size, state, num_cells, next_state)
     for (unsigned int g = 0; g < generations; g++) {
-        next_state = HT_create(num_cells * 6);
-        num_cells = 0;
+        #pragma omp master
+        {
+            next_state = HT_create(num_cells * 6);
+            num_cells = 0;
+        }
 
-        #pragma omp parallel for reduction(+:num_cells)
+        #pragma omp barrier
+        #pragma omp for reduction(+:num_cells)
         for (unsigned int i = 0; i < state->capacity; i++) {
-            cell_t c;
-            cell_t neighbors[6];
-
             c = state->table[i];
             if (c == 0) continue;
 
@@ -38,7 +42,11 @@ void life3d_run(unsigned int size, hashtable_t *state, unsigned int num_cells, u
             }
         }
 
-        HT_free(state);
-        state = next_state;
+        #pragma omp master
+        {
+            HT_free(state);
+            state = next_state;
+        }
     }
+    return;
 }
