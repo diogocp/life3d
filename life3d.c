@@ -8,7 +8,7 @@ void life3d_run(unsigned int size, hashtable_t *state, unsigned int num_cells, u
     hashtable_t *next_state;
 
     for (unsigned int i = 0; i < generations; i++) {
-        next_state = HT_create(num_cells * 2);
+        next_state = HT_create(num_cells * 6);
         num_cells = next_generation(state, next_state, size);
         HT_free(state);
         state = next_state;
