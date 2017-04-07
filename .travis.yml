@@ -8,7 +8,7 @@ compiler:
   - gcc
 
 env:
-  - OMP_NUM_THREADS=2
+  - OMP_NUM_THREADS=4
 
 script:
   - cmake -E make_directory build
