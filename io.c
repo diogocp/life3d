@@ -33,8 +33,7 @@ unsigned int read_file(FILE *file, unsigned int size, hashtable_t **cells_ht) {
 }
 
 void print_cells(hashtable_t *ht) {
-    int compareCells(const void *a, const void *b);
-    qsort(ht->table, ht->capacity, sizeof(cell_t), compareCells);
+    qsort(ht->table, ht->capacity, sizeof(cell_t), compare_cells);
 
     cell_t c;
     for (unsigned int i = 0; i < ht->capacity; i++) {
@@ -125,11 +124,3 @@ unsigned long int get_file_size(FILE *file) {
 }
 
 #endif
-
-int compareCells(const void *a, const void *b) {
-    if (*(cell_t *) a < *(cell_t *) b)
-        return -1;
-    if (*(cell_t *) a > *(cell_t *) b)
-        return 1;
-    return 0;
-}

@@ -15,4 +15,6 @@ void cell_get_neighbors(cell_t c, cell_t *neighbors, unsigned int size);
 
 int cell_next_state(cell_t c, const cell_t *neighbors, const hashtable_t *table);
 
+int compare_cells(const void *a, const void *b);
+
 #endif //LIFE3D_CELL_H

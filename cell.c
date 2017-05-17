@@ -33,3 +33,14 @@ int cell_next_state(cell_t c, const cell_t *neighbors, const hashtable_t *table)
     }
     return 1;
 }
+
+
+int compare_cells(const void *a, const void *b) {
+    if (*(cell_t *) a < *(cell_t *) b)
+        return -1;
+
+    if (*(cell_t *) a > *(cell_t *) b)
+        return 1;
+
+    return 0;
+}
