@@ -2,11 +2,19 @@
 #include <stdlib.h>
 #include <limits.h>
 
+#ifdef LIFE3D_MPI
+#include <mpi.h>
+#endif
+
 #include "io.h"
 #include "life3d.h"
 
 
 int main(int argc, char *argv[]) {
+#ifdef LIFE3D_MPI
+    MPI_Init(&argc, &argv);
+#endif
+
     if (argc != 3) {
         fprintf(stderr, "Usage: %s FILENAME GENERATIONS\n", argv[0]);
         return EXIT_FAILURE;
@@ -43,7 +51,11 @@ int main(int argc, char *argv[]) {
 
     life3d_run(size, state, num_cells, generations);
 
+#ifndef LIFE3D_MPI
     print_cells(state);
+#else
+    MPI_Finalize();
+#endif
 
     return EXIT_SUCCESS;
 }
