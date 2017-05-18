@@ -43,3 +43,9 @@ void HT_set_atomic(hashtable_t *ht, unsigned long long int key) {
         slot = HT_find_slot(ht, key);
     } while (!__sync_bool_compare_and_swap(&(ht->table[slot]), 0, key) && ht->table[slot] != key);
 }
+
+void HT_set_all(hashtable_t *ht, const unsigned long long int *keys, size_t num_keys) {
+    for(size_t i = 0; i < num_keys; i++) {
+        HT_set(ht, keys[i]);
+    }
+}

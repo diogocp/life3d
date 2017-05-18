@@ -47,8 +47,6 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
-    fprintf(stderr, "Size: %u\nLines: %u\nGenerations: %lu\n", size, num_cells, generations);
-
     life3d_run(size, state, num_cells, generations);
 
 #ifndef LIFE3D_MPI

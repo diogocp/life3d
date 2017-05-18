@@ -44,3 +44,54 @@ int compare_cells(const void *a, const void *b) {
 
     return 0;
 }
+
+/* Lower bound of the block decomposition */
+cell_t cell_block_low(const int *coords, const int *dims, unsigned int size) {
+    return CELL(coords[0] * size / dims[0],
+                coords[1] * size / dims[1],
+                coords[2] * size / dims[2]);
+}
+
+cell_t cell_block_high(const int *coords, const int *dims, unsigned int size) {
+    return CELL((coords[0] + 1) * size / dims[0] - 1,
+                (coords[1] + 1) * size / dims[1] - 1,
+                (coords[2] + 1) * size / dims[2] - 1);
+}
+
+/* Returns 1 if c is in the region bounded by lower_bound and upper_bound or a region of size overlap
+ * above or below those bounds. Returns 0 otherwise.
+ */
+int in_region(cell_t c, cell_t lower_bound, cell_t upper_bound, int size, int overlap) {
+    int cell_coords[] = {CELL_X(c), CELL_Y(c), CELL_Z(c)};
+
+    int min_coords[] = {CELL_X(lower_bound), CELL_Y(lower_bound), CELL_Z(lower_bound)};
+    int max_coords[] = {CELL_X(upper_bound), CELL_Y(upper_bound), CELL_Z(upper_bound)};
+
+    for (int dim = 0; dim < 3; dim++) {
+        if (min_coords[dim] - overlap >= 0 && max_coords[dim] + overlap <= size) {
+            // No underflow or overflow; normal case when region is away from the edges
+            if (min_coords[dim] - overlap > cell_coords[dim] || cell_coords[dim] > max_coords[dim] + overlap) {
+                return 0;
+            }
+        }
+        if (min_coords[dim] - overlap < 0 && max_coords[dim] + overlap > size) {
+            // Both underflow and overflow: region is the entire dimension
+            continue;
+        }
+        if (min_coords[dim] - overlap < 0) {
+            // Underflow only
+            if (!(min_coords[dim] - overlap + size <= cell_coords[dim] ||
+                  cell_coords[dim] <= max_coords[dim] + overlap)) {
+                return 0;
+            }
+        }
+        if (max_coords[dim] + overlap > size) {
+            // Overflow only
+            if (!(min_coords[dim] - overlap <= cell_coords[dim] ||
+                  cell_coords[dim] <= max_coords[dim] + overlap - size)) {
+                return 0;
+            }
+        }
+    }
+    return 1;
+}

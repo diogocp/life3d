@@ -17,4 +17,10 @@ int cell_next_state(cell_t c, const cell_t *neighbors, const hashtable_t *table)
 
 int compare_cells(const void *a, const void *b);
 
+cell_t cell_block_low(const int *coords, const int *dims, unsigned int size);
+
+cell_t cell_block_high(const int *coords, const int *dims, unsigned int size);
+
+int in_region(cell_t c, cell_t lower_bound, cell_t upper_bound, int size, int overlap);
+
 #endif //LIFE3D_CELL_H

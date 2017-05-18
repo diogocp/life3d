@@ -19,4 +19,6 @@ void HT_set(hashtable_t *ht, unsigned long long int key);
 
 void HT_set_atomic(hashtable_t *ht, unsigned long long int key);
 
+void HT_set_all(hashtable_t *ht, const unsigned long long int *keys, size_t num_keys);
+
 #endif //LIFE3D_HASHTABLE_H
