@@ -50,6 +50,9 @@ add_test(NAME s200e50k.1000
 add_test(NAME s500e300k.2000
         COMMAND sh -c "${PROJECT_BINARY_DIR}/life3d s500e300k.in 2000 | cmp s500e300k.2000.out -"
         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/instances/)
+add_test(NAME s500e5M.10
+        COMMAND sh -c "${PROJECT_BINARY_DIR}/life3d s500e5M.in 10 | cmp s500e5M.10.out -"
+        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/instances/)
 
 # OpenMP version tests
 if (OPENMP_FOUND)
@@ -70,6 +73,9 @@ if (OPENMP_FOUND)
             WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/instances/)
     add_test(NAME s500e300k.2000-omp
             COMMAND sh -c "${PROJECT_BINARY_DIR}/life3d-omp s500e300k.in 2000 | cmp s500e300k.2000.out -"
+            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/instances/)
+    add_test(NAME s500e5M.10-omp
+            COMMAND sh -c "${PROJECT_BINARY_DIR}/life3d-omp s500e5M.in 10 | cmp s500e5M.10.out -"
             WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/instances/)
 endif()
 
@@ -92,5 +98,8 @@ if (MPI_C_FOUND)
             WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/instances/)
     add_test(NAME s500e300k.2000-mpi
             COMMAND sh -c "${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 2 ${MPIEXEC_PREFLAGS} ${PROJECT_BINARY_DIR}/life3d-mpi ${MPIEXEC_POSTFLAGS} s500e300k.in 2000 | cmp s500e300k.2000.out -"
+            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/instances/)
+    add_test(NAME s500e5M.10-mpi
+            COMMAND sh -c "${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 2 ${MPIEXEC_PREFLAGS} ${PROJECT_BINARY_DIR}/life3d-mpi ${MPIEXEC_POSTFLAGS} s500e5M.in 10 | cmp s500e5M.10.out -"
             WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/instances/)
 endif()
