@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-const int OVERLAP = 5;
+const int OVERLAP = 2;
 
 static unsigned int next_generation(const hashtable_t *now, hashtable_t *next, unsigned int size);
 
