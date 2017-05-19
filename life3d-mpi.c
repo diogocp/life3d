@@ -260,7 +260,9 @@ unsigned int sendrecv_boundary_cells(MPI_Comm comm, cell_t **sendbuf, const unsi
 
                 if (source == rank && dest == rank) {
                     // No need to send/receive to ourselves
-                    recvcount[shift++] = 0;
+                    recvbufs[shift] = malloc(0);
+                    recvcount[shift] = 0;
+                    shift++;
                     continue;
                 }
 
