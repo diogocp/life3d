@@ -1,11 +1,10 @@
 #include "hashtable.h"
 #include "cell.h"
-#include "life3d.h"
 
-#include <mpi.h>
-#include <omp.h>
-#include <stdio.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <mpi.h>
+
 
 const int OVERLAP = 2;
 
@@ -51,7 +50,7 @@ void life3d_run(unsigned int size, hashtable_t *state, unsigned int num_cells, u
 
     // Run the generations loop
     hashtable_t *next_state;
-    for (unsigned int gen = 0; gen < generations; gen++) {
+    for (unsigned long gen = 0; gen < generations; gen++) {
         next_state = HT_create(num_cells * 6);
         num_cells = next_generation(state, next_state, size);
         HT_free(state);
@@ -298,7 +297,7 @@ static unsigned int get_cells_in_region(const hashtable_t *ht, cell_t lower_boun
 static unsigned int next_generation(const hashtable_t *now, hashtable_t *next, unsigned int size) {
     unsigned int ncells_next = 0;
 
-    #pragma omp parallel for reduction(+:ncells_next) shared(now, next, size)
+    #pragma omp parallel for reduction(+:ncells_next) shared(now, next)
     for (unsigned int i = 0; i < now->capacity; i++) {
         cell_t c = now->table[i];
         if (c == 0) {
@@ -313,14 +312,17 @@ static unsigned int next_generation(const hashtable_t *now, hashtable_t *next, u
             ncells_next++;
         }
 
-        cell_t buf[6];
         for (size_t j = 0; j < 6; j++) {
             c = neighbors[j];
-            cell_get_neighbors(c, buf, size);
 
-            if (!(HT_contains(now, c)) && !(HT_contains(next, c)) && cell_next_state(c, buf, now)) {
-                HT_set_atomic(next, c);
-                ncells_next++;
+            if (!(HT_contains(now, c)) && !(HT_contains(next, c))) {
+                cell_t buf[6];
+                cell_get_neighbors(c, buf, size);
+
+                if (cell_next_state(c, buf, now)) {
+                    HT_set_atomic(next, c);
+                    ncells_next++;
+                }
             }
         }
     }
