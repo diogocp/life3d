@@ -25,7 +25,7 @@ if (MPI_C_FOUND)
     target_include_directories(life3d-mpi PRIVATE ${MPI_C_INCLUDE_PATH})
     target_link_libraries(life3d-mpi PRIVATE ${MPI_C_LIBRARIES})
 else()
-    message(WARNING "OpenMP not found; skipping")
+    message(WARNING "MPI not found; skipping")
 endif()
 
 
