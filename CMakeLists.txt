@@ -72,3 +72,25 @@ if (OPENMP_FOUND)
             COMMAND sh -c "${PROJECT_BINARY_DIR}/life3d-omp s500e300k.in 2000 | cmp s500e300k.2000.out -"
             WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/instances/)
 endif()
+
+# MPI version tests
+if (MPI_C_FOUND)
+    add_test(NAME s5e50.10-mpi
+            COMMAND sh -c "${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 2 ${MPIEXEC_PREFLAGS} ${PROJECT_BINARY_DIR}/life3d-mpi ${MPIEXEC_POSTFLAGS} s5e50.in 10 | cmp s5e50.10.out -"
+            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/instances/)
+    add_test(NAME s50e5k.300-mpi
+            COMMAND sh -c "${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 2 ${MPIEXEC_PREFLAGS} ${PROJECT_BINARY_DIR}/life3d-mpi ${MPIEXEC_POSTFLAGS} s50e5k.in 300 | cmp s50e5k.300.out -"
+            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/instances/)
+    add_test(NAME s20e400.500-mpi
+            COMMAND sh -c "${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 2 ${MPIEXEC_PREFLAGS} ${PROJECT_BINARY_DIR}/life3d-mpi ${MPIEXEC_POSTFLAGS} s20e400.in 500 | cmp s20e400.500.out -"
+            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/instances/)
+    add_test(NAME s150e10k.1000-mpi
+            COMMAND sh -c "${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 2 ${MPIEXEC_PREFLAGS} ${PROJECT_BINARY_DIR}/life3d-mpi ${MPIEXEC_POSTFLAGS} s150e10k.in 1000 | cmp s150e10k.1000.out -"
+            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/instances/)
+    add_test(NAME s200e50k.1000-mpi
+            COMMAND sh -c "${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 2 ${MPIEXEC_PREFLAGS} ${PROJECT_BINARY_DIR}/life3d-mpi ${MPIEXEC_POSTFLAGS} s200e50k.in 1000 | cmp s200e50k.1000.out -"
+            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/instances/)
+    add_test(NAME s500e300k.2000-mpi
+            COMMAND sh -c "${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 2 ${MPIEXEC_PREFLAGS} ${PROJECT_BINARY_DIR}/life3d-mpi ${MPIEXEC_POSTFLAGS} s500e300k.in 2000 | cmp s500e300k.2000.out -"
+            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/instances/)
+endif()
