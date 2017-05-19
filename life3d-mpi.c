@@ -111,6 +111,9 @@ void life3d_run(unsigned int size, hashtable_t *state, unsigned int num_cells, u
         all_cells = (cell_t *) calloc(total_cells, sizeof(cell_t));
     }
 
+    // Pre-sort each process's cells
+    qsort(my_cells, num_cells, sizeof(cell_t), compare_cells);
+
     // Gather the cells
     MPI_Gatherv(my_cells, num_cells, MPI_UNSIGNED_LONG_LONG, all_cells, num_cells_by_process, displs,
                 MPI_UNSIGNED_LONG_LONG, 0, grid_comm);
