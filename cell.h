@@ -10,6 +10,7 @@ typedef unsigned long long int cell_t;
 #define CELL_X(c) ((unsigned int)((c) >> 48 & 0xffff))
 #define CELL_Y(c) ((unsigned int)((c) >> 32 & 0xffff))
 #define CELL_Z(c) ((unsigned int)((c) >> 16 & 0xffff))
+#define CELL_COORD(c, d) ((unsigned int)((c) >> (48 - 16 * d) & 0xffff))
 
 void cell_get_neighbors(cell_t c, cell_t *neighbors, unsigned int size);
 

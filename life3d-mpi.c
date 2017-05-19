@@ -5,6 +5,7 @@
 #include <mpi.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 const int OVERLAP = 5;
 
@@ -12,6 +13,13 @@ static unsigned int next_generation(const hashtable_t *now, hashtable_t *next, u
 
 static unsigned int get_cells_in_region(const hashtable_t *ht, cell_t lower_bound, cell_t upper_bound,
                                         unsigned int size, int overlap, cell_t *out);
+
+void
+get_num_cells_to_send(hashtable_t *ht, cell_t lower_bound, cell_t upper_bound, int overlap, unsigned int *num_cells);
+
+void get_cells_to_send(hashtable_t *ht, cell_t lower_bound, cell_t upper_bound, int overlap, cell_t **cells);
+
+unsigned int sendrecv_boundary_cells(MPI_Comm comm, cell_t **sendbuf, const unsigned int *sendcount, cell_t **received);
 
 void life3d_run(unsigned int size, hashtable_t *state, unsigned int num_cells, unsigned long generations) {
 
@@ -41,7 +49,6 @@ void life3d_run(unsigned int size, hashtable_t *state, unsigned int num_cells, u
     state = HT_create(num_cells * 3);
     HT_set_all(state, my_cells, num_cells);
     free(my_cells);
-    my_cells = NULL;
 
     // DEBUG
     fprintf(stderr, "%d/%d: %u cells / dims (%d,%d,%d) / coords (%d,%d,%d) / bounds (%d,%d,%d) -> (%d,%d,%d) \n",
@@ -53,11 +60,45 @@ void life3d_run(unsigned int size, hashtable_t *state, unsigned int num_cells, u
 
     // Run the generations loop
     hashtable_t *next_state;
-    for (unsigned int i = 0; i < generations; i++) {
+    for (unsigned int gen = 0; gen < generations; gen++) {
         next_state = HT_create(num_cells * 6);
         num_cells = next_generation(state, next_state, size);
         HT_free(state);
         state = next_state;
+
+        // Send updates once every OVERLAP iterations
+        if (!((gen + 1) % OVERLAP)) {
+            unsigned int num_cells_to_send[26] = {0};
+            get_num_cells_to_send(state, lower_bound, upper_bound, OVERLAP, num_cells_to_send);
+
+            cell_t *cells_to_send[26];
+            for (int i = 0; i < 26; i++) {
+                cells_to_send[i] = (cell_t *) calloc((size_t) num_cells_to_send[i], sizeof(cell_t));
+            }
+
+            get_cells_to_send(state, lower_bound, upper_bound, OVERLAP, cells_to_send);
+
+            // Send and receive cells near the boundary
+            cell_t *cells_received;
+            unsigned int num_cells_recv = sendrecv_boundary_cells(grid_comm, cells_to_send, num_cells_to_send,
+                                                                  &cells_received);
+
+            // Cleanup
+            for (int i = 0; i < 26; i++) {
+                free(cells_to_send[i]);
+            }
+
+            // Create new hashtable with the updated information
+            my_cells = (cell_t *) calloc(num_cells, sizeof(cell_t));
+            num_cells = get_cells_in_region(state, lower_bound, upper_bound, size, 0, my_cells);
+
+            HT_free(state);
+            state = HT_create((num_cells + num_cells_recv) * 3);
+            HT_set_all(state, my_cells, num_cells);
+            free(my_cells);
+            HT_set_all(state, cells_received, num_cells_recv);
+            //free(cells_received);
+        }
     }
 
     // Gather the number of cells of each process
@@ -103,6 +144,163 @@ void life3d_run(unsigned int size, hashtable_t *state, unsigned int num_cells, u
         fprintf(stdout, "%u %u %u\n", CELL_X(all_cells[i]), CELL_Y(all_cells[i]), CELL_Z(all_cells[i]));
     }
 }
+
+int in_boundary_region(cell_t c, cell_t lower_bound, cell_t upper_bound, int boundary_size, const int *direction) {
+    for (int dim = 0; dim < 3; dim++) {
+        if (CELL_COORD(lower_bound, dim) > CELL_COORD(c, dim) || CELL_COORD(c, dim) > CELL_COORD(upper_bound, dim)) {
+            return 0;
+        }
+        if (direction[dim] == -1 && CELL_COORD(c, dim) > CELL_COORD(lower_bound, dim) + boundary_size) {
+            return 0;
+        }
+        if (direction[dim] == 1 && CELL_COORD(c, dim) < CELL_COORD(upper_bound, dim) - boundary_size) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+/*
+ * num_cells should be an int[26]
+ */
+void
+get_num_cells_to_send(hashtable_t *ht, cell_t lower_bound, cell_t upper_bound, int overlap, unsigned int *num_cells) {
+    int direction[3];
+
+    for (int i = 0; i < ht->capacity; i++) {
+        cell_t c = ht->table[i];
+
+        if (c == 0) {
+            continue;
+        }
+
+        int shift = 0;
+        for (direction[0] = -1; direction[0] < 2; direction[0]++) {
+            for (direction[1] = -1; direction[1] < 2; direction[1]++) {
+                for (direction[2] = -1; direction[2] < 2; direction[2]++) {
+                    if (!(direction[0] || direction[1] || direction[2])) {
+                        // Ignore the (0, 0, 0) shift
+                        continue;
+                    }
+                    if (in_boundary_region(c, lower_bound, upper_bound, overlap, direction)) {
+                        num_cells[shift]++;
+                    }
+                    shift++;
+                }
+            }
+        }
+    }
+}
+
+void get_cells_to_send(hashtable_t *ht, cell_t lower_bound, cell_t upper_bound, int overlap, cell_t **cells) {
+    int direction[3];
+    int num_cells[26] = {0};
+
+    for (int i = 0; i < ht->capacity; i++) {
+        cell_t c = ht->table[i];
+
+        if (c == 0) {
+            continue;
+        }
+
+        int shift = 0;
+        for (direction[0] = -1; direction[0] < 2; direction[0]++) {
+            for (direction[1] = -1; direction[1] < 2; direction[1]++) {
+                for (direction[2] = -1; direction[2] < 2; direction[2]++) {
+                    if (!(direction[0] || direction[1] || direction[2])) {
+                        // Ignore the (0, 0, 0) shift
+                        continue;
+                    }
+                    if (in_boundary_region(c, lower_bound, upper_bound, overlap, direction)) {
+                        cells[shift][num_cells[shift]++] = c;
+                    }
+                    shift++;
+                }
+            }
+        }
+    }
+}
+
+unsigned int sendrecv_boundary_cells(MPI_Comm comm, cell_t **sendbuf, const unsigned int *sendcount, cell_t **received) {
+    int rank, my_coords[3];
+    MPI_Comm_rank(comm, &rank);
+    MPI_Cart_coords(comm, rank, 3, my_coords);
+
+    int shift = 0;
+    int direction[3];
+
+    cell_t *recvbufs[26];
+    unsigned int recvcount[26];
+
+    for (direction[0] = -1; direction[0] < 2; direction[0]++) {
+        for (direction[1] = -1; direction[1] < 2; direction[1]++) {
+            for (direction[2] = -1; direction[2] < 2; direction[2]++) {
+
+                if (!(direction[0] || direction[1] || direction[2])) {
+                    // Ignore the (0, 0, 0) shift
+                    continue;
+                }
+
+                int src_coords[3] = {my_coords[0] - direction[0],
+                                     my_coords[1] - direction[1],
+                                     my_coords[2] - direction[2]};
+                int dest_coords[3] = {my_coords[0] + direction[0],
+                                      my_coords[1] + direction[1],
+                                      my_coords[2] + direction[2]};
+
+                int source, dest;
+                MPI_Cart_rank(comm, src_coords, &source);
+                MPI_Cart_rank(comm, dest_coords, &dest);
+
+/*
+                fprintf(stderr, "%d: src %d (%d,%d,%d) -> dest %d (%d,%d,%d)\n", rank,
+                        source, src_coords[0], src_coords[1], src_coords[2],
+                        dest, dest_coords[0], dest_coords[1], dest_coords[2]);
+*/
+
+                if (source == rank && dest == rank) {
+                    // No need to send/receive to ourselves
+                    recvcount[shift++] = 0;
+                    continue;
+                }
+
+                //fprintf(stderr, "%d: src %d -> dest %d\n", rank, source, dest);
+
+                //fprintf(stderr, "%d: sending %d cells to %d\n", rank, sendcount[shift], dest);
+                MPI_Sendrecv(&sendcount[shift], 1, MPI_UNSIGNED, dest, 18361,
+                             &recvcount[shift], 1, MPI_UNSIGNED, source, 18361,
+                             comm, NULL);
+                //fprintf(stderr, "%d: receiving %d cells from %d\n", rank, recvcount[shift], source);
+
+                recvbufs[shift] = calloc((size_t) recvcount[shift], sizeof(cell_t));
+
+                MPI_Sendrecv(sendbuf[shift], sendcount[shift], MPI_UNSIGNED_LONG_LONG, dest, 25341,
+                             recvbufs[shift], recvcount[shift], MPI_UNSIGNED_LONG_LONG, source, 25341,
+                             comm, NULL);
+
+                shift++;
+            }
+        }
+    }
+
+    unsigned int total_cells_received = 0;
+    for (int i = 0; i < 26; i++) {
+        total_cells_received += recvcount[i];
+    }
+    fprintf(stderr, "%d: received %d cells\n", rank, total_cells_received);
+
+    *received = (cell_t *) calloc(total_cells_received, sizeof(cell_t));
+    int copied_so_far = 0;
+    for (int i = 0; i < 26; i++) {
+        for (int j = 0; j < recvcount[i]; j++) {
+            (*received)[copied_so_far++] = recvbufs[i][j];
+        }
+        free(recvbufs[i]);
+    }
+    //fprintf(stderr, "%d: recv %d copied %d, 10: %d\n", rank, total_cells_received, copied_so_far, CELL_X(received[total_cells_received-1]));
+    return total_cells_received;
+}
+
 
 static unsigned int get_cells_in_region(const hashtable_t *ht, cell_t lower_bound, cell_t upper_bound,
                                         unsigned int size, int overlap, cell_t *out) {
