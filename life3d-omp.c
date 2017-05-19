@@ -1,13 +1,8 @@
 #include "hashtable.h"
 #include "cell.h"
 
-#include <omp.h>
-#include <stdio.h>
-
 
 void life3d_run(unsigned int size, hashtable_t *state, unsigned int num_cells, unsigned long generations) {
-    double start = omp_get_wtime();
-
     hashtable_t *next_state;
     cell_t c;
     cell_t neighbors[6];
@@ -52,7 +47,5 @@ void life3d_run(unsigned int size, hashtable_t *state, unsigned int num_cells, u
         }
     }
 
-    double end = omp_get_wtime();
-    fprintf(stderr, "Time: %f\n", end - start);
     return;
 }
