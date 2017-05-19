@@ -80,7 +80,7 @@ if (OPENMP_FOUND)
 endif()
 
 # MPI version tests
-if (MPI_C_FOUND)
+if (MPI_C_FOUND AND OPENMP_FOUND)
     add_test(NAME s5e50.10-mpi
             COMMAND sh -c "${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 2 ${MPIEXEC_PREFLAGS} ${PROJECT_BINARY_DIR}/life3d-mpi ${MPIEXEC_POSTFLAGS} s5e50.in 10 | cmp s5e50.10.out -"
             WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/instances/)

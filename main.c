@@ -4,6 +4,8 @@
 
 #ifdef LIFE3D_MPI
 #include <mpi.h>
+#include <omp.h>
+#include <stdio.h>
 #endif
 
 #include "io.h"
@@ -11,9 +13,14 @@
 
 
 int main(int argc, char *argv[]) {
-#ifdef LIFE3D_MPI
-    MPI_Init(&argc, &argv);
-#endif
+    #ifdef LIFE3D_MPI
+        MPI_Init(&argc, &argv);
+        double start, end;
+        #pragma omp master
+        {
+            start = omp_get_wtime();
+        }
+    #endif
 
     if (argc != 3) {
         fprintf(stderr, "Usage: %s FILENAME GENERATIONS\n", argv[0]);
@@ -49,11 +56,16 @@ int main(int argc, char *argv[]) {
 
     life3d_run(size, state, num_cells, generations);
 
-#ifndef LIFE3D_MPI
-    print_cells(state);
-#else
-    MPI_Finalize();
-#endif
+    #ifndef LIFE3D_MPI
+        print_cells(state);
+    #else
+        #pragma omp master
+        {
+            end = omp_get_wtime();
+            fprintf(stderr, "Time: %f\n", end - start);
+        }
+        MPI_Finalize();
+    #endif
 
     return EXIT_SUCCESS;
 }
