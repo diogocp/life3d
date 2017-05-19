@@ -3,6 +3,7 @@
 #include "life3d.h"
 
 #include <mpi.h>
+#include <omp.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -204,7 +205,8 @@ void get_cells_to_send(hashtable_t *ht, cell_t lower_bound, cell_t upper_bound, 
     }
 }
 
-unsigned int sendrecv_boundary_cells(MPI_Comm comm, cell_t **sendbuf, const unsigned int *sendcount, cell_t **received) {
+unsigned int
+sendrecv_boundary_cells(MPI_Comm comm, cell_t **sendbuf, const unsigned int *sendcount, cell_t **received) {
     int rank, my_coords[3];
     MPI_Comm_rank(comm, &rank);
     MPI_Cart_coords(comm, rank, 3, my_coords);
@@ -296,17 +298,18 @@ static unsigned int get_cells_in_region(const hashtable_t *ht, cell_t lower_boun
 static unsigned int next_generation(const hashtable_t *now, hashtable_t *next, unsigned int size) {
     unsigned int ncells_next = 0;
 
-    cell_t c;
-    cell_t neighbors[6];
-
+    #pragma omp parallel for reduction(+:ncells_next) shared(now, next, size)
     for (unsigned int i = 0; i < now->capacity; i++) {
-        c = now->table[i];
-        if (c == 0) continue;
+        cell_t c = now->table[i];
+        if (c == 0) {
+            continue;
+        }
 
+        cell_t neighbors[6];
         cell_get_neighbors(c, neighbors, size);
 
         if (cell_next_state(c, neighbors, now)) {
-            HT_set(next, c);
+            HT_set_atomic(next, c);
             ncells_next++;
         }
 
@@ -316,7 +319,7 @@ static unsigned int next_generation(const hashtable_t *now, hashtable_t *next, u
             cell_get_neighbors(c, buf, size);
 
             if (!(HT_contains(now, c)) && !(HT_contains(next, c)) && cell_next_state(c, buf, now)) {
-                HT_set(next, c);
+                HT_set_atomic(next, c);
                 ncells_next++;
             }
         }
