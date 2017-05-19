@@ -5,7 +5,6 @@
 #include <mpi.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 const int OVERLAP = 5;
 
@@ -22,7 +21,6 @@ void get_cells_to_send(hashtable_t *ht, cell_t lower_bound, cell_t upper_bound, 
 unsigned int sendrecv_boundary_cells(MPI_Comm comm, cell_t **sendbuf, const unsigned int *sendcount, cell_t **received);
 
 void life3d_run(unsigned int size, hashtable_t *state, unsigned int num_cells, unsigned long generations) {
-
     // MPI grid initialization
     int grid_rank, num_procs;
     int dims[3] = {0, 0, 0};
@@ -49,14 +47,6 @@ void life3d_run(unsigned int size, hashtable_t *state, unsigned int num_cells, u
     state = HT_create(num_cells * 3);
     HT_set_all(state, my_cells, num_cells);
     free(my_cells);
-
-    // DEBUG
-    fprintf(stderr, "%d/%d: %u cells / dims (%d,%d,%d) / coords (%d,%d,%d) / bounds (%d,%d,%d) -> (%d,%d,%d) \n",
-            grid_rank, num_procs, num_cells,
-            dims[0], dims[1], dims[2],
-            coords[0], coords[1], coords[2],
-            CELL_X(lower_bound), CELL_Y(lower_bound), CELL_Z(lower_bound),
-            CELL_X(upper_bound), CELL_Y(upper_bound), CELL_Z(upper_bound));
 
     // Run the generations loop
     hashtable_t *next_state;
@@ -114,13 +104,6 @@ void life3d_run(unsigned int size, hashtable_t *state, unsigned int num_cells, u
         displs[p] = displs[p - 1] + num_cells_by_process[p - 1];
     }
     unsigned int total_cells = (unsigned int) displs[num_procs - 1] + num_cells_by_process[num_procs - 1];
-
-    if (grid_rank == 0) {
-        for (int p = 0; p < num_procs; p++) {
-            fprintf(stderr, "Process %d sending %d cells\n", p, num_cells_by_process[p]);
-        }
-        fprintf(stderr, "Total cells: %d\n", total_cells);
-    }
 
     // Create a buffer to hold all the cells on the root process
     cell_t *all_cells = NULL;
@@ -252,12 +235,6 @@ unsigned int sendrecv_boundary_cells(MPI_Comm comm, cell_t **sendbuf, const unsi
                 MPI_Cart_rank(comm, src_coords, &source);
                 MPI_Cart_rank(comm, dest_coords, &dest);
 
-/*
-                fprintf(stderr, "%d: src %d (%d,%d,%d) -> dest %d (%d,%d,%d)\n", rank,
-                        source, src_coords[0], src_coords[1], src_coords[2],
-                        dest, dest_coords[0], dest_coords[1], dest_coords[2]);
-*/
-
                 if (source == rank && dest == rank) {
                     // No need to send/receive to ourselves
                     recvbufs[shift] = malloc(0);
@@ -266,13 +243,9 @@ unsigned int sendrecv_boundary_cells(MPI_Comm comm, cell_t **sendbuf, const unsi
                     continue;
                 }
 
-                //fprintf(stderr, "%d: src %d -> dest %d\n", rank, source, dest);
-
-                //fprintf(stderr, "%d: sending %d cells to %d\n", rank, sendcount[shift], dest);
                 MPI_Sendrecv(&sendcount[shift], 1, MPI_UNSIGNED, dest, 18361,
                              &recvcount[shift], 1, MPI_UNSIGNED, source, 18361,
                              comm, NULL);
-                //fprintf(stderr, "%d: receiving %d cells from %d\n", rank, recvcount[shift], source);
 
                 recvbufs[shift] = calloc((size_t) recvcount[shift], sizeof(cell_t));
 
@@ -289,7 +262,6 @@ unsigned int sendrecv_boundary_cells(MPI_Comm comm, cell_t **sendbuf, const unsi
     for (int i = 0; i < 26; i++) {
         total_cells_received += recvcount[i];
     }
-    fprintf(stderr, "%d: received %d cells\n", rank, total_cells_received);
 
     *received = (cell_t *) calloc(total_cells_received, sizeof(cell_t));
     int copied_so_far = 0;
@@ -299,7 +271,7 @@ unsigned int sendrecv_boundary_cells(MPI_Comm comm, cell_t **sendbuf, const unsi
         }
         free(recvbufs[i]);
     }
-    //fprintf(stderr, "%d: recv %d copied %d, 10: %d\n", rank, total_cells_received, copied_so_far, CELL_X(received[total_cells_received-1]));
+
     return total_cells_received;
 }
 
